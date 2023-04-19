@@ -37,14 +37,14 @@ impl RelationPayload for Project {
 
 pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let config = Config::read();
-    let db = config.get_instance("nfts")?;
+    let db = config.get_instance("orgs")?;
 
     let query = match (id, all) {
         (Some(id), false) => {
             let id = Uuid::parse_str(&id)?;
             format!("SELECT id, organization_id FROM projects WHERE id = '{id}'")
         }
-        _ => "SELECT id, organization_id FROM nfts".to_string(),
+        _ => "SELECT id, organization_id FROM projects".to_string(),
     };
 
     let items: Vec<Project> = from_row::query_and_map(db, &query).await?;

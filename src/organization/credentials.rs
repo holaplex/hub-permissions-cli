@@ -37,9 +37,9 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let query = match (id, all) {
         (Some(id), false) => {
             let id = Uuid::parse_str(&id)?;
-            format!("SELECT id, owner FROM hydra_client WHERE id = '{id}'")
+            format!("SELECT id::uuid, owner::uuid FROM hydra_client WHERE id = '{id}'")
         }
-        _ => "SELECT id, owner FROM hydra".to_string(),
+        _ => "SELECT id::uuid, owner::uuid FROM hydra_client".to_string(),
     };
 
     let items: Vec<Credential> = from_row::query_and_map(db, &query).await?;

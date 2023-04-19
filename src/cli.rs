@@ -31,11 +31,6 @@ pub struct GlobalOptions {
 
 #[derive(Debug, StructOpt)]
 pub enum Command {
-    #[structopt(name = "get")]
-    Get {
-        #[structopt(subcommand)]
-        subcmd: Namespace,
-    },
     #[structopt(name = "check")]
     Check {
         #[structopt(subcommand)]
@@ -45,15 +40,9 @@ pub enum Command {
 
 #[derive(Debug, StructOpt)]
 pub enum Namespace {
-    /*
-    #[structopt(alias = "organizations")]
-    Organization {
-        #[structopt(name = "organization_id", help = "Organization ID")]
-        id: String,
-    },*/
     #[structopt(alias = "webhooks")]
     Webhook {
-        #[structopt(name = "id", help = "Project ID", required_unless = "all")]
+        #[structopt(name = "id", help = "Webhook ID", required_unless = "all")]
         id: Option<String>,
         #[structopt(
             short = "A",
@@ -65,7 +54,7 @@ pub enum Namespace {
     },
     #[structopt(alias = "credentials")]
     Credential {
-        #[structopt(name = "id", help = "Project ID", required_unless = "all")]
+        #[structopt(name = "id", help = "Credential ID", required_unless = "all")]
         id: Option<String>,
         #[structopt(
             short = "A",
@@ -174,11 +163,13 @@ pub enum ResourceRelation {
 
 #[derive(Debug, StructOpt)]
 pub enum UserRelation {
-    #[structopt(alias = "owner")]
+    #[structopt(alias = "owners")]
     Owner,
-    #[structopt(alias = "member")]
+    #[structopt(alias = "members")]
     Member,
 }
+
+
 
 impl FromStr for UserRelation {
     type Err = String;
