@@ -37,5 +37,5 @@ RUN apt-get update -y && \
 RUN mkdir -p bin
 
 FROM base AS hub-permissions-cli
-COPY --from=builder-hub-permissions-cli /app/target/release/hub-permissions-cli bin
-CMD ["bin/hub-permissions-cli"]
+COPY --from=builder-hub-permissions-cli /app/target/release/hub-permissions-cli /bin/
+ENTRYPOINT ["/bin/hub-permissions-cli"]
