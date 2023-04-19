@@ -6,14 +6,12 @@ authors = [
   "Holaplex <engineering@holaplex.com>",
 ]
 edition = "2021"
-description = "Holaplex Hub nfts service"
+description = "Hub-Permissions management CLI"
 readme = "./README.md"
-repository = "https://github.com/holaplex/hub-nfts"
+repository = "https://github.com/holaplex/hub-permissions-cli"
 license = "AGPL-3.0-or-later"
-keywords = ["hub", "holaplex", "web3"]
+keywords = ["hub", "holaplex", "web3", "cli", "permissions", "opa", "keto"]
 categories = ["cryptography::cryptocurrencies", "web-programming"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
