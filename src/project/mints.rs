@@ -88,9 +88,12 @@ pub async fn get(
     Ok(payloads)
 }
 
-
-
-pub async fn check(id: Option<String>, project_id: Option<String>, drop_id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
+pub async fn check(
+    id: Option<String>,
+    project_id: Option<String>,
+    drop_id: Option<String>,
+    all: bool,
+) -> Result<Vec<Relationship>> {
     let items = get(id, project_id, drop_id, all).await?;
     let results: Vec<CheckResponse> = check_relations(items).await?;
 

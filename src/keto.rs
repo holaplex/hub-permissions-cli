@@ -38,31 +38,6 @@ pub struct CreateResponse {
     pub error: Option<String>,
 }
 
-impl CheckResponse {
-    pub fn display_pretty(&self) -> String {
-        match self.relationship.namespace.as_str() {
-            "User" => format!(
-                "Is {} {} {} of {} ID {} ? {}",
-                self.relationship.namespace,
-                self.relationship.object,
-                self.relationship.relation,
-                self.relationship.subject_set.as_ref().unwrap().namespace,
-                self.relationship.subject_set.as_ref().unwrap().object,
-                self.allowed
-            ),
-            _ => format!(
-                "Is {} {} {} of {} {} ? {}",
-                self.relationship.subject_set.as_ref().unwrap().namespace,
-                self.relationship.subject_set.as_ref().unwrap().object,
-                self.relationship.relation,
-                self.relationship.namespace,
-                self.relationship.object,
-                self.allowed
-            ),
-        }
-    }
-}
-
 impl fmt::Display for Namespace {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = match self {
@@ -75,7 +50,7 @@ impl fmt::Display for Namespace {
             Self::Drop => "Drop",
             Self::Mint => "Mint",
         };
-        write!(f, "{}", name)
+        write!(f, "{name}")
     }
 }
 impl Default for Relation {
@@ -90,10 +65,12 @@ impl fmt::Display for Relation {
             Self::Editors => "editors",
             Self::Owners => "owners",
         };
-        write!(f, "{}", name)
+        write!(f, "{name}")
     }
 }
-
+/// # Errors
+///
+/// Will return `Err` if unable to contact Keto-read endpoint
 pub async fn check_relations(items: Vec<Relationship>) -> Result<Vec<CheckResponse>> {
     let url = format!("{}/relation-tuples/check", Config::read().keto.read_url);
 
@@ -113,13 +90,11 @@ pub async fn check_relations(items: Vec<Relationship>) -> Result<Vec<CheckRespon
             let client = reqwest::Client::new();
             let response = client.get(&url).query(&query_params).send().await?;
             let status = response.status();
-            let allowed = match status {
-                StatusCode::OK => {
-                    let json: Value = response.json().await?;
-                    json["allowed"].as_bool().unwrap_or(false)
-                }
-                StatusCode::FORBIDDEN => false,
-                _ => false,
+            let allowed = if status == StatusCode::OK {
+                let json: Value = response.json().await?;
+                json["allowed"].as_bool().unwrap_or(false)
+            } else {
+                false
             };
 
             Ok(CheckResponse {
@@ -135,6 +110,9 @@ pub async fn check_relations(items: Vec<Relationship>) -> Result<Vec<CheckRespon
     results.into_iter().collect()
 }
 
+/// # Errors
+///
+/// Will return `Err` if unable to contact Keto-write endpoint
 pub async fn create_relations(items: &[Relationship]) -> Result<Vec<CreateResponse>> {
     let url = format!("{}/admin/relation-tuples", Config::read().keto.write_url);
 
@@ -145,15 +123,15 @@ pub async fn create_relations(items: &[Relationship]) -> Result<Vec<CreateRespon
             match client.put(&url).json(&payload).send().await {
                 Ok(response) => {
                     let status = response.status().as_u16();
-                    let error = if status != 201 {
+                    let error = if status == 201 {
+                        None
+                    } else {
                         response
                             .json::<serde_json::Value>()
                             .await
                             .ok()
                             .and_then(|v| v.get("error").and_then(|e| e.get("message").cloned()))
                             .and_then(|e| e.as_str().map(String::from))
-                    } else {
-                        None
                     };
                     Ok(CreateResponse {
                         relationship: payload.clone(),

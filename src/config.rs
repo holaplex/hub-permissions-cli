@@ -1,12 +1,10 @@
 use super::db::Instance;
+use crate::prelude::error;
 use anyhow::Result;
 use once_cell::sync::OnceCell;
 use ory_keto_client::apis::configuration::Configuration as KetoConfig;
 use serde::Deserialize;
-use std::fs;
-use std::io;
-use std::path::PathBuf;
-use std::sync::Arc;
+use std::{fs, io, path::PathBuf, sync::Arc};
 use url::Url;
 
 #[derive(Debug, Deserialize)]
@@ -24,7 +22,10 @@ pub struct Keto {
 static CONFIG: OnceCell<Arc<Config>> = OnceCell::new();
 
 impl Config {
-    pub async fn load(path: PathBuf) -> Result<(), io::Error> {
+    /// # Errors
+    ///
+    /// Will return `Err` if unable to read config file
+    pub fn load(path: PathBuf) -> Result<(), io::Error> {
         let config = serde_json::from_str::<Config>(&fs::read_to_string(path)?)?;
         CONFIG
             .set(Arc::new(config))
@@ -33,9 +34,17 @@ impl Config {
     }
 
     pub fn read() -> &'static Config {
-        CONFIG.get().map(|config| config.as_ref()).unwrap()
+        CONFIG.get().map_or_else(
+            || {
+                error!("Unable to read config. Exiting");
+                std::process::exit(1)
+            },
+            std::convert::AsRef::as_ref,
+        )
     }
-
+    /// # Errors
+    ///
+    /// Will return `Err` if unable find instance on config file
     pub fn get_instance(&self, db_name: &str) -> Result<&Instance> {
         self.instances
             .iter()

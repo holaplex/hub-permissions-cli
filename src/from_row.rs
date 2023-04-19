@@ -6,7 +6,9 @@ use tokio_postgres::Row;
 pub trait FromRow {
     fn from_row(row: &Row) -> Self;
 }
-
+/// # Errors
+///
+/// Will return `Err` if unable map row to struct
 pub async fn query_and_map<T: FromRow + Debug>(db: &Instance, query: &str) -> Result<Vec<T>> {
     let db_client = Instance::connect(db).await;
     let rows = db_client

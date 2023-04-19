@@ -1,3 +1,4 @@
+#![allow(clippy::unused_async)]
 use crate::prelude::*;
 
 pub mod customers;

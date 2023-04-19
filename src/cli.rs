@@ -187,7 +187,7 @@ impl FromStr for UserRelation {
         match s {
             "owners" | "owner" => Ok(UserRelation::Owner),
             "members" | "member" => Ok(UserRelation::Member),
-            _ => Err(format!("Invalid role: {}", s)),
+            _ => Err(format!("Invalid role: {s}")),
         }
     }
 }

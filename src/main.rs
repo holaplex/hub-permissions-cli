@@ -1,4 +1,11 @@
-use cli::{Command::*, Namespace::*, UserRelation::*};
+#![deny(clippy::disallowed_methods, clippy::suspicious, clippy::style)]
+#![warn(clippy::pedantic, clippy::cargo)]
+#![allow(clippy::module_name_repetitions)]
+use cli::{
+    Command::{Check, Get},
+    Namespace::{Credential, Customer, Drop, Mint, Project, User, Webhook},
+    UserRelation::{Member, Owner},
+};
 use config::Config;
 use env_logger::Builder;
 use log::LevelFilter;
@@ -18,7 +25,7 @@ mod project;
 async fn main() -> Result<()> {
     let cli = cli::Opt::from_args();
     Builder::new().filter(None, LevelFilter::Info).init();
-    Config::load(cli.global.config).await?;
+    Config::load(cli.global.config)?;
 
     match cli.cmd {
         Get { subcmd } => {
@@ -32,7 +39,12 @@ async fn main() -> Result<()> {
                 Project { id, all } => project::get(id, all).await?,
                 Customer { id, all } => project::customers::get(id, all).await?,
                 Drop { id, all } => project::drops::get(id, all).await?,
-                Mint { id, project_id, drop_id, all } => project::mints::get(id, project_id, drop_id, all).await?,
+                Mint {
+                    id,
+                    project_id,
+                    drop_id,
+                    all,
+                } => project::mints::get(id, project_id, drop_id, all).await?,
             };
             info!("{}", serde_json::to_string_pretty(&payloads)?);
         }
@@ -47,11 +59,14 @@ async fn main() -> Result<()> {
                 Project { id, all } => project::check(id, all).await?,
                 Customer { id, all } => project::customers::check(id, all).await?,
                 Drop { id, all } => project::drops::check(id, all).await?,
-                Mint { id, project_id, drop_id, all } => project::mints::check(id, project_id, drop_id, all).await?,
+                Mint {
+                    id,
+                    project_id,
+                    drop_id,
+                    all,
+                } => project::mints::check(id, project_id, drop_id, all).await?,
             };
             if let Some(payload_count) = (!payloads.is_empty()).then_some(payloads.len()) {
-                info!("{}", serde_json::to_string_pretty(&payloads).unwrap());
-
                 if cli.global.fix {
                     info!("--fix flag detected. Creating {} relations", payload_count);
                     let results = create_relations(&payloads).await?;

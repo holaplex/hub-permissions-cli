@@ -1,5 +1,5 @@
+#![allow(clippy::unused_async)]
 use crate::prelude::*;
-
 pub mod credentials;
 pub mod members;
 pub mod owners;
