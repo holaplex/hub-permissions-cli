@@ -41,7 +41,9 @@ A Docker image is available at `holaplex/hub-permissions-cli:latest`.
 To use it, run:
 
 ```bash
-docker run -it --rm -v $(pwd)/config.json:/app/config.json holaplex/hub-permissions-cli:latest check user 123e4567-e89b-12d3-a456-426614174000 --relation member
+docker run -it --rm -v $(pwd)/config.json:/app/config.json \
+holaplex/hub-permissions-cli:latest \
+check user 123e4567-e89b-12d3-a456-426614174000 --relation member
 ```
 
 ## Contributing
