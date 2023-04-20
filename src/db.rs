@@ -21,10 +21,10 @@ impl Instance {
             .port(config.port)
             .dbname(&config.database);
 
-        let (client, connection) = pg_config
-            .connect(NoTls)
-            .await
-            .expect("Failed to connect to database");
+        let (client, connection) = pg_config.connect(NoTls).await.unwrap_or_else(|_| {
+            error!("Unable to connect to DB");
+            std::process::exit(1)
+        });
 
         tokio::spawn(async move {
             if let Err(e) = connection.await {

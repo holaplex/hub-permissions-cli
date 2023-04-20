@@ -15,11 +15,11 @@ use structopt::StructOpt;
 mod cli;
 mod config;
 mod db;
-mod keto;
-mod project;
-mod organization;
 pub mod from_row;
+mod keto;
+mod organization;
 pub mod prelude;
+mod project;
 
 #[tokio::main]
 async fn main() -> Result<()> {

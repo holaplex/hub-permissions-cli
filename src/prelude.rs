@@ -2,12 +2,10 @@
 pub use crate::config::Config;
 pub use crate::from_row::{self, FromRow};
 pub use crate::keto::{
-    check_relations,
+    check_relations, create_relations, CheckResponse,
+    Namespace::{Credential, Customer, Drop, Mint, Organization, Project, User, Webhook},
+    Relation::{Editors, Owners, Parents},
     RelationPayload,
-    CheckResponse,
-    create_relations,
-    Namespace::{Organization, Credential, Customer, Drop, Mint, Project, User, Webhook},
-    Relation::{Owners, Editors, Parents}
 };
 pub use anyhow::{anyhow, Result};
 pub use log::{error, info, warn};

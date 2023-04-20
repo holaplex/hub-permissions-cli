@@ -169,8 +169,6 @@ pub enum UserRelation {
     Member,
 }
 
-
-
 impl FromStr for UserRelation {
     type Err = String;
 
