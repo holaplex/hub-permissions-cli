@@ -1,0 +1,43 @@
+{
+  "keto": {
+    "read_url": "http://127.0.0.1:4466",
+    "write_url": "http://127.0.0.1:4467"
+  },
+  "instances": [
+    {
+      "ip": "127.0.0.1",
+      "port": 5432,
+      "database": "orgs",
+      "username": "orgs",
+      "password": "<db-pw>"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": 5432,
+      "database": "hydra",
+      "username": "hydra",
+      "password": "<db-pw>"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": 5432,
+      "database": "webhooks",
+      "username": "webhooks",
+      "password": "<db-pw>"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": 5432,
+      "database": "customers",
+      "username": "customers",
+      "password": "<db-pw>"
+    },
+    {
+      "ip": "127.0.0.1",
+      "port": 5432,
+      "database": "nfts",
+      "username": "nfts",
+      "password": "<db-pw>"
+    }
+  ]
+}
