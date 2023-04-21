@@ -13,7 +13,21 @@ impl FromRow for Credential {
         }
     }
 }
-
+impl Credential {
+    fn create_members_payload(&self) -> Relationship {
+        Relationship {
+            namespace: Organization.to_string(),
+            object: self.organization_id.to_string(),
+            relation: Editors.to_string(),
+            subject_id: None,
+            subject_set: Some(Box::new(SubjectSet {
+                namespace: User.to_string(),
+                object: self.id.to_string(),
+                relation: String::new(),
+            })),
+        }
+    }
+}
 impl RelationPayload for Credential {
     fn create_payload(&self) -> Relationship {
         Relationship {
@@ -45,9 +59,12 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let items: Vec<Credential> = from_row::query_and_map(db, &query).await?;
     let payloads: Vec<Relationship> = items
         .into_iter()
-        .map(|item| item.create_payload())
+        .flat_map(|item| {
+            let resource_payload = item.create_payload();
+            let members_payload = item.create_members_payload();
+            std::iter::once(resource_payload).chain(std::iter::once(members_payload))
+        })
         .collect();
-
     Ok(payloads)
 }
 

@@ -156,12 +156,6 @@ pub enum Namespace {
 }
 
 #[derive(Debug, StructOpt)]
-pub enum ResourceRelation {
-    #[structopt(alias = "parents")]
-    Parents,
-}
-
-#[derive(Debug, StructOpt)]
 pub enum UserRelation {
     #[structopt(alias = "owners")]
     Owner,
