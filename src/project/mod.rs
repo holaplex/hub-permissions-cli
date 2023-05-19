@@ -40,10 +40,11 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let db = config.get_instance("orgs")?;
 
     let query = match (id, all) {
-        (Some(id), false) => {
-            let id = Uuid::parse_str(&id)?;
-            format!("SELECT id, organization_id FROM projects WHERE id = '{id}'")
-        }
+        (Some(id), false) => format!(
+            "SELECT id, organization_id FROM projects WHERE id = '{id}'",
+            id = Uuid::parse_str(&id)?
+        ),
+
         _ => "SELECT id, organization_id FROM projects".to_string(),
     };
 

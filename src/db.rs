@@ -1,6 +1,7 @@
-use crate::prelude::error;
 use serde::Deserialize;
 use tokio_postgres::{Config, NoTls};
+
+use crate::prelude::error;
 
 #[derive(Debug, Deserialize)]
 pub struct Instance {

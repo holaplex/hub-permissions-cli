@@ -1,7 +1,9 @@
-use crate::db::Instance;
-use anyhow::Result;
 use std::fmt::Debug;
+
+use anyhow::Result;
 use tokio_postgres::Row;
+
+use crate::db::Instance;
 
 pub trait FromRow {
     fn from_row(row: &Row) -> Self;

@@ -61,7 +61,7 @@ async fn main() -> Result<()> {
             } else {
                 info!("OK. No missing/broken relations");
             }
-        }
+        },
     };
 
     Ok(())

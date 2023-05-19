@@ -35,10 +35,10 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let db = config.get_instance("webhooks")?;
 
     let query = match (id, all) {
-        (Some(id), false) => {
-            let id = Uuid::parse_str(&id)?;
-            format!("SELECT id, organization_id FROM webhooks WHERE id = '{id}'")
-        }
+        (Some(id), false) => format!(
+            "SELECT id, organization_id FROM webhooks WHERE id = '{id}'",
+            id = Uuid::parse_str(&id)?
+        ),
         _ => "SELECT id, organization_id FROM webhooks".to_string(),
     };
 
