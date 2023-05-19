@@ -3,6 +3,7 @@ use crate::prelude::*;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Member {
     id: Uuid,
+    user_id: Uuid,
     organization_id: Uuid,
     deactivated_at: Option<DateTime<Utc>>,
 }
@@ -10,7 +11,8 @@ pub struct Member {
 impl FromRow for Member {
     fn from_row(row: &Row) -> Self {
         Self {
-            id: row.get("user_id"),
+            id: row.get("id"),
+            user_id: row.get("user_id"),
             organization_id: row.get("organization_id"),
             deactivated_at: row.get("deactivated_at"),
         }
@@ -26,7 +28,7 @@ impl Member {
             subject_id: None,
             subject_set: Some(Box::new(SubjectSet {
                 namespace: User.to_string(),
-                object: self.id.to_string(),
+                object: self.user_id.to_string(),
                 relation: String::new(),
             })),
         }
@@ -36,7 +38,7 @@ impl Member {
 impl RelationPayload for Member {
     fn create_payload(&self) -> Relationship {
         Relationship {
-            namespace: User.to_string(),
+            namespace: Member.to_string(),
             object: self.id.to_string(),
             relation: Parents.to_string(),
             subject_id: None,
@@ -55,10 +57,10 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let query = {
         match (id, all) {
             (Some(user_id), false) => format!(
-                "SELECT user_id, organization_id, deactivated_at FROM members WHERE user_id = '{id}'",
+                "SELECT id, user_id, organization_id, deactivated_at FROM members WHERE user_id = '{id}'",
                 id = Uuid::parse_str(&user_id)?
             ),
-            _ => "SELECT user_id, organization_id, deactivated_at FROM members".to_string(),
+            _ => "SELECT id, user_id, organization_id, deactivated_at FROM members".to_string(),
         }
     };
 

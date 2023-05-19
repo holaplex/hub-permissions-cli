@@ -12,7 +12,9 @@ pub use crate::{
     from_row::{self, FromRow},
     keto::{
         check_relations, create_relations, CheckResponse,
-        Namespace::{Credential, Customer, Drop, Mint, Organization, Project, User, Webhook},
+        Namespace::{
+            Credential, Customer, Drop, Member, Mint, Organization, Project, User, Webhook,
+        },
         Relation::{Editors, Owners, Parents},
         RelationPayload,
     },
