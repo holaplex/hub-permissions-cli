@@ -38,7 +38,7 @@ impl Member {
 impl RelationPayload for Member {
     fn create_payload(&self) -> Relationship {
         Relationship {
-            namespace: User.to_string(),
+            namespace: Member.to_string(),
             object: self.id.to_string(),
             relation: Parents.to_string(),
             subject_id: None,
