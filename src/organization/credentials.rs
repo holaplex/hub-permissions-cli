@@ -5,6 +5,7 @@ pub struct Credential {
     id: Uuid,
     organization_id: Uuid,
 }
+
 impl FromRow for Credential {
     fn from_row(row: &Row) -> Self {
         Self {
@@ -13,8 +14,9 @@ impl FromRow for Credential {
         }
     }
 }
+
 impl Credential {
-    fn create_members_payload(&self) -> Relationship {
+    fn create_role_payload(&self) -> Relationship {
         Relationship {
             namespace: Organization.to_string(),
             object: self.organization_id.to_string(),
@@ -28,6 +30,7 @@ impl Credential {
         }
     }
 }
+
 impl RelationPayload for Credential {
     fn create_payload(&self) -> Relationship {
         Relationship {
@@ -49,10 +52,10 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let db = config.get_instance("hydra")?;
 
     let query = match (id, all) {
-        (Some(id), false) => {
-            let id = Uuid::parse_str(&id)?;
-            format!("SELECT id::uuid, owner::uuid FROM hydra_client WHERE id = '{id}'")
-        }
+        (Some(id), false) => format!(
+            "SELECT id::uuid, owner::uuid FROM hydra_client WHERE id = '{id}'",
+            id = Uuid::parse_str(&id)?
+        ),
         _ => "SELECT id::uuid, owner::uuid FROM hydra_client".to_string(),
     };
 
@@ -61,8 +64,8 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
         .into_iter()
         .flat_map(|item| {
             let resource_payload = item.create_payload();
-            let members_payload = item.create_members_payload();
-            std::iter::once(resource_payload).chain(std::iter::once(members_payload))
+            let role_payload = item.create_role_payload();
+            std::iter::once(resource_payload).chain(std::iter::once(role_payload))
         })
         .collect();
     Ok(payloads)

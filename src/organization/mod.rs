@@ -23,19 +23,3 @@ impl FromRow for Organization {
         }
     }
 }
-
-/*
-pub async fn get(id: Option<String>, all: bool) -> Result<Vec<CheckResponse>> {
-    let config = Config::read();
-    let db = config.get_instance("orgs")?;
-
-    let query = match (id, all) {
-        (Some(id), false) => {
-            let id = Uuid::parse_str(&id)?;
-            format!("SELECT id FROM organizations WHERE id = '{id}'")
-        }
-        _ => "SELECT id FROM organizations".to_string()
-    };
-
-    let items: Vec<Organization> = from_row::query_and_map(db, &query).await?;
-}*/

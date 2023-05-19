@@ -1,9 +1,10 @@
-use crate::prelude::*;
+use std::{collections::HashMap, fmt};
+
 use futures::{stream, StreamExt};
 use reqwest::StatusCode;
 use serde_json::Value;
-use std::collections::HashMap;
-use std::fmt;
+
+use crate::prelude::*;
 
 pub trait RelationPayload {
     fn create_payload(&self) -> Relationship;
@@ -138,7 +139,7 @@ pub async fn create_relations(items: &[Relationship]) -> Result<Vec<CreateRespon
                         status,
                         error,
                     })
-                }
+                },
                 Err(_) => Ok(CreateResponse {
                     relationship: payload.clone(),
                     status: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),

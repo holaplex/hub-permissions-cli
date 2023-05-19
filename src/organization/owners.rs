@@ -5,6 +5,7 @@ pub struct Owner {
     id: Uuid,
     organization_id: Uuid,
 }
+
 impl FromRow for Owner {
     fn from_row(row: &Row) -> Self {
         Self {
@@ -35,10 +36,10 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let db = config.get_instance("orgs")?;
 
     let query = match (id, all) {
-        (Some(user_id), false) => {
-            let user_id = Uuid::parse_str(&user_id)?;
-            format!("SELECT user_id, organization_id FROM owners WHERE  user_id = '{user_id}'")
-        }
+        (Some(user_id), false) => format!(
+            "SELECT user_id, organization_id FROM owners WHERE  user_id = '{id}'",
+            id = Uuid::parse_str(&user_id)?
+        ),
         _ => "SELECT user_id, organization_id FROM owners".to_string(),
     };
 

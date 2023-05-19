@@ -1,11 +1,13 @@
-use super::db::Instance;
-use crate::prelude::error;
+use std::{fs, io, path::PathBuf, sync::Arc};
+
 use anyhow::Result;
 use once_cell::sync::OnceCell;
 use ory_keto_client::apis::configuration::Configuration as KetoConfig;
 use serde::Deserialize;
-use std::{fs, io, path::PathBuf, sync::Arc};
 use url::Url;
+
+use super::db::Instance;
+use crate::prelude::error;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {

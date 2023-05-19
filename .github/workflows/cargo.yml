@@ -1,6 +1,18 @@
 name: Cargo
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - release
+  pull_request:
+    branches:
+      - "**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
 
   clippy:
@@ -12,13 +24,13 @@ jobs:
           sudo apt-get update -y && \
           sudo apt-get install -y --no-install-recommends \
             libssl-dev \
-            pkg-config 
+            pkg-config
 
       - uses: actions/checkout@v3
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: nightly-2023-04-15
+            toolchain: 1.69.0
             override: true
             components: rustfmt, clippy
       - uses: actions/cache@v3
@@ -61,7 +73,7 @@ jobs:
       - name: Install latest nightly
         uses: actions-rs/toolchain@v1
         with:
-            toolchain: nightly-2023-04-15
+            toolchain: nightly-2022-12-11
             override: true
             components: rustfmt, clippy
       - name: cargo fmt

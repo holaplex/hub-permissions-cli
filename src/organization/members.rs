@@ -4,18 +4,21 @@ use crate::prelude::*;
 pub struct Member {
     id: Uuid,
     organization_id: Uuid,
+    deactivated_at: Option<DateTime<Utc>>,
 }
+
 impl FromRow for Member {
     fn from_row(row: &Row) -> Self {
         Self {
             id: row.get("user_id"),
             organization_id: row.get("organization_id"),
+            deactivated_at: row.get("deactivated_at"),
         }
     }
 }
 
-impl RelationPayload for Member {
-    fn create_payload(&self) -> Relationship {
+impl Member {
+    fn create_role_payload(&self) -> Relationship {
         Relationship {
             namespace: Organization.to_string(),
             object: self.organization_id.to_string(),
@@ -29,22 +32,48 @@ impl RelationPayload for Member {
         }
     }
 }
+
+impl RelationPayload for Member {
+    fn create_payload(&self) -> Relationship {
+        Relationship {
+            namespace: User.to_string(),
+            object: self.id.to_string(),
+            relation: Parents.to_string(),
+            subject_id: None,
+            subject_set: Some(Box::new(SubjectSet {
+                namespace: Organization.to_string(),
+                object: self.organization_id.to_string(),
+                relation: String::new(),
+            })),
+        }
+    }
+}
+
 pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let config = Config::read();
     let db = config.get_instance("orgs")?;
-
-    let query = match (id, all) {
-        (Some(user_id), false) => {
-            let user_id = Uuid::parse_str(&user_id)?;
-            format!("SELECT user_id, organization_id, deactivated_at FROM members WHERE deactivated_at IS NULL AND user_id = '{user_id}'")
+    let query = {
+        match (id, all) {
+            (Some(user_id), false) => format!(
+                "SELECT user_id, organization_id, deactivated_at FROM members WHERE user_id = '{id}'",
+                id = Uuid::parse_str(&user_id)?
+            ),
+            _ => "SELECT user_id, organization_id, deactivated_at FROM members".to_string(),
         }
-        _ => "SELECT user_id, organization_id, deactivated_at FROM members WHERE deactivated_at IS NULL".to_string(),
     };
 
     let items: Vec<Member> = from_row::query_and_map(db, &query).await?;
     let payloads: Vec<Relationship> = items
         .into_iter()
-        .map(|item| item.create_payload())
+        .flat_map(|item| {
+            let resource_payload = item.create_payload();
+            if item.deactivated_at.is_none() {
+                let role_payload = item.create_role_payload();
+                vec![resource_payload, role_payload]
+            } else {
+                vec![resource_payload]
+            }
+        })
         .collect();
 
     Ok(payloads)
