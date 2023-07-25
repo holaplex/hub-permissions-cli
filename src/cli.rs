@@ -20,7 +20,7 @@ pub struct GlobalOptions {
     #[structopt(
         long,
         global = true,
-        help = "config path with db instances and keto urls",
+        help = "config path with db instances and keto read/write endpoints",
         default_value = "./config.json",
         env = "CONFIG_PATH",
         parse(from_os_str)
@@ -98,7 +98,7 @@ pub enum Namespace {
         #[structopt(
             short = "A",
             long = "all",
-            help = "Retrieve all members",
+            help = "Retrieve all customers",
             conflicts_with = "id"
         )]
         all: bool,
@@ -110,7 +110,23 @@ pub enum Namespace {
         #[structopt(
             short = "A",
             long = "all",
-            help = "Retrieve all members",
+            help = "Retrieve all drops",
+            conflicts_with = "id"
+        )]
+        all: bool,
+    },
+    #[structopt(alias = "collections")]
+    Collection {
+        #[structopt(
+            name = "collection_id",
+            help = "Collection ID",
+            required_unless = "all"
+        )]
+        id: Option<String>,
+        #[structopt(
+            short = "A",
+            long = "all",
+            help = "Retrieve all collections",
             conflicts_with = "id"
         )]
         all: bool,

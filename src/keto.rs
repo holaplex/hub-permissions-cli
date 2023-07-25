@@ -18,6 +18,7 @@ pub enum Namespace {
     Member,
     Project,
     Customer,
+    Collection,
     Drop,
     Mint,
 }
@@ -51,6 +52,7 @@ impl fmt::Display for Namespace {
             Self::Project => "Project",
             Self::Customer => "Customer",
             Self::Drop => "Drop",
+            Self::Collection => "Collection",
             Self::Mint => "Mint",
         };
         write!(f, "{name}")

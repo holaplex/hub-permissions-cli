@@ -3,7 +3,7 @@
 #![allow(clippy::module_name_repetitions)]
 use cli::{
     Command::Check,
-    Namespace::{Credential, Customer, Drop, Mint, Project, User, Webhook},
+    Namespace::{Collection, Credential, Customer, Drop, Mint, Project, User, Webhook},
     UserRelation::{Member, Owner},
 };
 use config::Config;
@@ -39,6 +39,7 @@ async fn main() -> Result<()> {
                 Project { id, all } => project::check(id, all).await?,
                 Customer { id, all } => project::customers::check(id, all).await?,
                 Drop { id, all } => project::drops::check(id, all).await?,
+                Collection { id, all } => project::collections::check(id, all).await?,
                 Mint {
                     id,
                     project_id,

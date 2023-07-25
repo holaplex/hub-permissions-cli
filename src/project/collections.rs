@@ -1,35 +1,29 @@
-#![allow(clippy::unused_async)]
 use crate::prelude::*;
 
-pub mod collections;
-pub mod customers;
-pub mod drops;
-pub mod mints;
-
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Project {
+pub struct Collection {
     id: Uuid,
-    organization_id: Uuid,
+    project_id: Uuid,
 }
-impl FromRow for Project {
+impl FromRow for Collection {
     fn from_row(row: &Row) -> Self {
         Self {
             id: row.get("id"),
-            organization_id: row.get("organization_id"),
+            project_id: row.get("project_id"),
         }
     }
 }
 
-impl RelationPayload for Project {
+impl RelationPayload for Collection {
     fn create_payload(&self) -> Relationship {
         Relationship {
-            namespace: Project.to_string(),
+            namespace: Collection.to_string(),
             object: self.id.to_string(),
             relation: Parents.to_string(),
             subject_id: None,
             subject_set: Some(Box::new(SubjectSet {
-                namespace: Organization.to_string(),
-                object: self.organization_id.to_string(),
+                namespace: Project.to_string(),
+                object: self.project_id.to_string(),
                 relation: String::new(),
             })),
         }
@@ -38,18 +32,17 @@ impl RelationPayload for Project {
 
 pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
     let config = Config::read();
-    let db = config.get_instance("orgs")?;
+    let db = config.get_instance("nfts")?;
 
     let query = match (id, all) {
         (Some(id), false) => format!(
-            "SELECT id, organization_id FROM projects WHERE id = '{id}'",
+            "SELECT id, project_id FROM drops WHERE id = '{id}'",
             id = Uuid::parse_str(&id)?
         ),
-
-        _ => "SELECT id, organization_id FROM projects".to_string(),
+        _ => "SELECT id, project_id FROM drops".to_string(),
     };
 
-    let items: Vec<Project> = from_row::query_and_map(db, &query).await?;
+    let items: Vec<Collection> = from_row::query_and_map(db, &query).await?;
 
     let payloads: Vec<Relationship> = items
         .into_iter()
