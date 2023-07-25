@@ -36,10 +36,10 @@ pub async fn get(id: Option<String>, all: bool) -> Result<Vec<Relationship>> {
 
     let query = match (id, all) {
         (Some(id), false) => format!(
-            "SELECT id, project_id FROM drops WHERE id = '{id}'",
+            "SELECT id, project_id FROM collections WHERE id = '{id}'",
             id = Uuid::parse_str(&id)?
         ),
-        _ => "SELECT id, project_id FROM drops".to_string(),
+        _ => "SELECT id, project_id FROM collections".to_string(),
     };
 
     let items: Vec<Collection> = from_row::query_and_map(db, &query).await?;
