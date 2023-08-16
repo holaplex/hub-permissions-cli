@@ -35,13 +35,14 @@ pub async fn get(
     id: Option<String>,
     project_id: Option<String>,
     drop_id: Option<String>,
+    collection_id: Option<String>,
     all: bool,
 ) -> Result<Vec<Relationship>> {
     let config = Config::read();
     let db = config.get_instance("nfts")?;
 
-    let query = match (id, project_id, drop_id, all) {
-        (Some(id), None, None, false) => {
+    let query = match (id, project_id, drop_id, collection_id, all) {
+        (Some(id), None, None, None, false) => {
             format!(
                 "
         SELECT d.id AS drop_id, cm.id AS mint_id
@@ -51,7 +52,7 @@ pub async fn get(
                 id = Uuid::parse_str(&id)?
             )
         },
-        (None, Some(project_id), None, _) => format!(
+        (None, Some(project_id), None, None, _) => format!(
             "
         SELECT d.id AS drop_id, cm.id AS mint_id FROM drops d
         JOIN collection_mints cm ON d.collection_id = cm.collection_id
@@ -59,13 +60,21 @@ pub async fn get(
         "
         ),
 
-        (None, None, Some(drop_id), _) => format!(
+        (None, None, Some(drop_id), None, _) => format!(
             "
         SELECT d.id AS drop_id, cm.id AS mint_id FROM drops d
         JOIN collection_mints cm ON d.collection_id = cm.collection_id
         WHERE d.id = '{drop_id}';
         "
         ),
+        (None, None, None, Some(collection_id), _) => format!(
+            "
+        SELECT d.id AS drop_id, cm.id AS mint_id FROM collections d
+        JOIN collection_mints cm ON d.collection_id = cm.collection_id
+        WHERE d.id = '{collection_id}';
+        "
+        ),
+
         _ => "
         SELECT d.id AS drop_id, cm.id AS mint_id FROM drops d JOIN collection_mints cm
         ON d.collection_id = cm.collection_id GROUP BY d.id, cm.id;
@@ -87,9 +96,10 @@ pub async fn check(
     id: Option<String>,
     project_id: Option<String>,
     drop_id: Option<String>,
+    collection_id: Option<String>,
     all: bool,
 ) -> Result<Vec<Relationship>> {
-    let items = get(id, project_id, drop_id, all).await?;
+    let items = get(id, project_id, drop_id, collection_id, all).await?;
     let results: Vec<CheckResponse> = check_relations(items).await?;
 
     let missing: Vec<Relationship> = results

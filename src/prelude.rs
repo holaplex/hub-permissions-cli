@@ -13,7 +13,8 @@ pub use crate::{
     keto::{
         check_relations, create_relations, CheckResponse,
         Namespace::{
-            Credential, Customer, Drop, Member, Mint, Organization, Project, User, Webhook,
+            Collection, Credential, Customer, Drop, Member, Mint, Organization, Project, User,
+            Webhook,
         },
         Relation::{Editors, Owners, Parents},
         RelationPayload,

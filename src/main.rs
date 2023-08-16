@@ -3,7 +3,8 @@
 #![allow(clippy::module_name_repetitions)]
 use cli::{
     Command::Check,
-    Namespace::{Credential, Customer, Drop, Mint, Project, User, Webhook},
+    MintRelation,
+    Namespace::{Collection, Credential, Customer, Drop, Mint, Project, User, Webhook},
     UserRelation::{Member, Owner},
 };
 use config::Config;
@@ -39,12 +40,22 @@ async fn main() -> Result<()> {
                 Project { id, all } => project::check(id, all).await?,
                 Customer { id, all } => project::customers::check(id, all).await?,
                 Drop { id, all } => project::drops::check(id, all).await?,
+                Collection { id, all } => project::collections::check(id, all).await?,
                 Mint {
                     id,
+                    relation,
                     project_id,
                     drop_id,
+                    collection_id,
                     all,
-                } => project::mints::check(id, project_id, drop_id, all).await?,
+                } => match relation {
+                    MintRelation::Collection => {
+                        project::mints::check(id, project_id, drop_id, collection_id, all).await?
+                    },
+                    MintRelation::Drop => {
+                        project::mints::check(id, project_id, drop_id, collection_id, all).await?
+                    },
+                },
             };
             if let Some(payload_count) = (!payloads.is_empty()).then_some(payloads.len()) {
                 info!("{}", serde_json::to_string_pretty(&payloads)?);
